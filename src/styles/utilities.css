@@ -1,0 +1,76 @@
+/* Card */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Text */
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-label {
+  color: var(--text-label);
+}
+
+/* Border */
+.border {
+  border: 1px solid var(--border-default);
+}
+
+.divider {
+  border-top: 1px solid var(--divider);
+}
+
+/* Button */
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  border: none;
+  padding: 8px 16px;
+  transition: var(--transition-fast);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+/* Table */
+.table-header {
+  background: var(--bg-table-header);
+}
+
+.table-row:hover {
+  background: var(--bg-table-hover);
+}
+
+.row-selected {
+  background: var(--bg-row-selected);
+}
+
+/* Status badge */
+.badge-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.badge-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.badge-error {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.badge-info {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
