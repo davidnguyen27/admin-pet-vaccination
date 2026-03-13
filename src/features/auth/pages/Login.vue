@@ -1,8 +1,30 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
+import { useRouter, useRoute } from 'vue-router';
+import { authStore, loadingStore } from '@/store';
 
+const router = useRouter();
+const route = useRoute();
+const useAuthStore = authStore();
+const useLoadingStore = loadingStore();
+
+const email = ref('');
+const password = ref('');
 const showPassword = ref(false);
+
+const handleLogin = async () => {
+  if (!email.value || !password.value) return;
+  try {
+    const response = await useAuthStore.login({ email: email.value, password: password.value });
+    message.success(response?.message);
+    const redirect = (route.query.redirect as string) || '/';
+    router.push(redirect);
+  } catch (error: any) {
+    message.error(error.message);
+  }
+};
 </script>
 
 <template>
@@ -19,11 +41,12 @@ const showPassword = ref(false);
         <h2 class="text-primary text-xl font-sans mb-6">Sign In</h2>
 
         <!-- Login Form -->
-        <form class="space-y-5" @submit.prevent>
+        <form class="space-y-5" @submit.prevent="handleLogin">
           <div class="flex flex-col gap-2">
             <label class="text-label text-sm font-medium">Email</label>
             <div class="relative">
               <input
+                v-model="email"
                 class="form-input flex w-full border bg-(--bg-card) h-10 text-primary px-3 text-sm font-normal placeholder:text-(--text-disabled) outline-none focus:border-(--color-primary) transition-colors"
                 placeholder="Enter your email"
                 type="email"
@@ -40,6 +63,7 @@ const showPassword = ref(false);
             </div>
             <div class="relative flex w-full items-center">
               <input
+                v-model="password"
                 class="form-input flex w-full border bg-(--bg-card) h-10 text-primary px-3 pr-10 text-sm font-normal placeholder:text-(--text-disabled) outline-none focus:border-(--color-primary) transition-colors"
                 placeholder="Enter your password"
                 :type="showPassword ? 'text' : 'password'"
@@ -60,7 +84,13 @@ const showPassword = ref(false);
             <label class="text-secondary text-sm cursor-pointer" for="remember">Remember me</label>
           </div>
 
-          <button class="w-full btn-primary font-medium h-10 flex items-center justify-center gap-2 mt-2">Login</button>
+          <button
+            :disabled="useLoadingStore.globalLoading"
+            class="w-full btn-primary font-medium h-10 flex items-center justify-center gap-2 mt-2"
+          >
+            <span v-if="useLoadingStore.globalLoading">Loading...</span>
+            <span v-else>Login</span>
+          </button>
         </form>
 
         <!-- Footer Section -->
@@ -72,11 +102,6 @@ const showPassword = ref(false);
           </div>
         </div>
       </div>
-
-      <!-- Decorative Illustration Element (Subtle) -->
-      <div
-        class="absolute bottom-0 left-0 w-full h-1 bg-linear-to-r from-(--color-primary-bg) via-(--color-primary) to-(--color-primary-bg)"
-      ></div>
     </div>
   </div>
 </template>

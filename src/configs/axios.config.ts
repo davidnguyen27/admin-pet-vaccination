@@ -1,6 +1,8 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig, type AxiosResponse } from 'axios';
-import { useAuthStore } from '@/store/auth';
+import { authStore, loadingStore } from '@/store';
 import router from '@/router';
+import type { IResponseError } from '@/interfaces/i-response';
+import { message } from 'ant-design-vue';
 
 export const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -29,25 +31,41 @@ const processQueue = (error?: unknown) => {
 
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    loadingStore().start();
     return config;
   },
   (error: AxiosError) => {
+    loadingStore().stop();
     return Promise.reject(error);
   },
 );
 
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
-    return response;
+    loadingStore().stop();
+    return response.data;
   },
   async (error: AxiosError) => {
+    loadingStore().stop();
+    if (error.response?.data) {
+      const errData = error.response.data as IResponseError;
+      if (errData.errors) {
+        error.message = Array.isArray(errData.errors) ? errData.errors.join(', ') : errData.errors;
+      }
+    }
+
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-    const authStore = useAuthStore();
+    const useAuthStore = authStore();
 
     if (error.response) {
       const status = error.response.status;
 
-      if (status === 401 && originalRequest && !originalRequest._retry) {
+      if (
+        status === 401 &&
+        originalRequest &&
+        !originalRequest._retry &&
+        !originalRequest.url?.includes('/auth/login')
+      ) {
         if (isRefreshing) {
           // If a token refresh is already in progress, put other requests into the queue
           return new Promise((resolve, reject) => {
@@ -73,7 +91,7 @@ axiosInstance.interceptors.response.use(
           processQueue(refreshError);
 
           // Refresh token expired and then back to login page
-          await authStore.logout();
+          await useAuthStore.logout();
 
           // Redirect to login, storing the old path to return after a successful login
           router.push({
@@ -83,6 +101,7 @@ axiosInstance.interceptors.response.use(
 
           return Promise.reject(refreshError);
         } finally {
+          loadingStore().stop();
           isRefreshing = false;
         }
       }
@@ -90,25 +109,31 @@ axiosInstance.interceptors.response.use(
       // Global Errors handlers
       switch (status) {
         case 400:
-          console.error('Bad Request: Invalid input data.');
+          message.error('Bad Request: Invalid input data.');
+          console.error(error.message);
           break;
         case 403:
-          console.error('Forbidden: You do not have permission to access the system this action.');
+          message.error('Forbidden: You do not have permission to access the system this action.');
+          console.error(error.message);
           break;
         case 404:
-          console.error('Not Found: The resource was not found on the system.');
+          message.error('Not Found: The resource was not found on the system.');
+          console.error(error.message);
           break;
         case 422:
-          console.error('Validation Error: Invalid information.');
+          message.error('Validation Error: Invalid information.');
+          console.error(error.message);
           break;
         case 500:
         case 502:
         case 503:
-          console.error('Server Status: The system is experiencing disruption, please try again later.');
+          message.error('Server Status: The system is experiencing disruption, please try again later.');
+          console.error(error.message);
           break;
       }
     } else if (error.request) {
-      console.error('Network Error: Please check your network connection.');
+      message.error('Network Error: Please check your network connection.');
+      console.error(error.message);
     } else {
       console.error('Request setup error:', error.message);
     }
