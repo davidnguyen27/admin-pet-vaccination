@@ -1,25 +1,38 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons-vue';
+import { reactive } from 'vue';
 import { message } from 'ant-design-vue';
 import { useRouter, useRoute } from 'vue-router';
-import { authStore, loadingStore } from '@/store';
+import { authStore } from '../auth.store';
+import { appStore } from '@/store/app.store';
+import type { Rule } from 'ant-design-vue/es/form';
 
 const router = useRouter();
 const route = useRoute();
-const useAuthStore = authStore();
-const useLoadingStore = loadingStore();
+const auth = authStore();
+const loading = appStore();
 
-const email = ref('');
-const password = ref('');
-const showPassword = ref(false);
+const formState = reactive({
+  email: '',
+  password: '',
+  remember: false,
+});
+
+const rules: Record<string, Rule[]> = {
+  email: [
+    { required: true, message: 'Please enter your email', trigger: 'blur' },
+    { type: 'email', message: 'Please enter a valid email address', trigger: 'blur' },
+  ],
+  password: [{ required: true, message: 'Please enter your password', trigger: 'blur' }],
+};
 
 const handleLogin = async () => {
-  if (!email.value || !password.value) return;
   try {
-    const response = await useAuthStore.login({ email: email.value, password: password.value });
-    message.success(response?.message);
-    const redirect = (route.query.redirect as string) || '/';
+    await auth.login({
+      email: formState.email,
+      password: formState.password,
+    });
+    message.success('Login successful');
+    const redirect = (route.query.redirect as string) || '/user-management';
     router.push(redirect);
   } catch (error: any) {
     message.error(error.message);
@@ -28,80 +41,88 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="bg-(--bg-page) min-h-screen flex items-center justify-center font-display">
-    <div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden items-center justify-center p-4">
-      <div class="w-full max-w-[500px] card p-8 rounded-none">
-        <div class="flex flex-col items-center mb-8">
-          <div class="mb-6 flex items-center justify-center bg-(--color-primary-bg) w-16 h-16 rounded-full">
-            <span class="material-symbols-outlined text-(--color-primary) text-4xl">P</span>
+  <div class="font-display flex min-h-screen items-center justify-center bg-(--bg-page)">
+    <div class="relative flex h-full min-h-screen w-full flex-col items-center justify-center overflow-x-hidden p-4">
+      <div class="card w-full max-w-125 rounded-none p-8">
+        <!-- Logo & Header -->
+        <div class="mb-8 flex flex-col items-center text-center">
+          <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-(--color-primary-bg)">
+            <span class="material-symbols-outlined text-4xl text-(--color-primary)">P</span>
           </div>
-          <h1 class="text-primary text-2xl font-bold leading-tight tracking-tight mb-1">Pet Clinic</h1>
+          <h1 class="text-primary mb-1 text-2xl leading-tight font-bold tracking-tight">Pet Clinic</h1>
           <p class="text-secondary text-sm">Pet Vaccination Management System</p>
         </div>
-        <h2 class="text-primary text-xl font-sans mb-6">Sign In</h2>
+
+        <h2 class="text-primary mb-6 font-sans text-xl">Sign In</h2>
 
         <!-- Login Form -->
-        <form class="space-y-5" @submit.prevent="handleLogin">
-          <div class="flex flex-col gap-2">
-            <label class="text-label text-sm font-medium">Email</label>
-            <div class="relative">
-              <input
-                v-model="email"
-                class="form-input flex w-full border bg-(--bg-card) h-10 text-primary px-3 text-sm font-normal placeholder:text-(--text-disabled) outline-none focus:border-(--color-primary) transition-colors"
-                placeholder="Enter your email"
-                type="email"
-              />
-            </div>
-          </div>
+        <a-form :model="formState" name="login_form" layout="vertical" :rules="rules" @finish="handleLogin">
+          <a-form-item label="Email" name="email" class="mb-5">
+            <a-input
+              v-model:value="formState.email"
+              placeholder="Enter your email"
+              class="h-10 border-(--border-default)! bg-(--bg-card)! text-sm! hover:border-(--color-primary)! focus:border-(--color-primary)! focus:shadow-none!"
+            />
+          </a-form-item>
 
-          <div class="flex flex-col gap-2">
-            <div class="flex justify-between items-center">
-              <label class="text-label text-sm font-medium">Password</label>
-              <a class="text-(--color-primary) text-sm hover:text-(--color-primary-hover) transition-colors" href="#"
-                >Forgot Password?</a
-              >
-            </div>
-            <div class="relative flex w-full items-center">
-              <input
-                v-model="password"
-                class="form-input flex w-full border bg-(--bg-card) h-10 text-primary px-3 pr-10 text-sm font-normal placeholder:text-(--text-disabled) outline-none focus:border-(--color-primary) transition-colors"
-                placeholder="Enter your password"
-                :type="showPassword ? 'text' : 'password'"
-              />
-              <div
-                class="absolute right-3 flex items-center justify-center cursor-pointer text-secondary hover:text-(--color-primary-hover) transition-colors"
-                @click="showPassword = !showPassword"
-              >
-                <eye-outlined v-if="showPassword" />
-                <eye-invisible-outlined v-else />
-              </div>
-            </div>
-          </div>
+          <a-form-item label="Password" name="password" class="mb-1">
+            <a-input-password
+              v-model:value="formState.password"
+              placeholder="Enter your password"
+              class="h-10 border-(--border-default)! bg-(--bg-card)! text-sm! hover:border-(--color-primary)! focus:border-(--color-primary)! focus:shadow-none!"
+            />
+          </a-form-item>
 
           <!-- Remember Me -->
-          <div class="flex items-center gap-2 py-1">
-            <input class="w-4 h-4" style="accent-color: var(--color-primary)" id="remember" type="checkbox" />
-            <label class="text-secondary text-sm cursor-pointer" for="remember">Remember me</label>
-          </div>
+          <a-form-item name="remember" no-style>
+            <a-checkbox v-model:checked="formState.remember" class="text-secondary text-sm">Remember me</a-checkbox>
+          </a-form-item>
 
-          <button
-            :disabled="useLoadingStore.globalLoading"
-            class="w-full btn-primary font-medium h-10 flex items-center justify-center gap-2 mt-2"
-          >
-            <span v-if="useLoadingStore.globalLoading">Loading...</span>
-            <span v-else>Login</span>
-          </button>
-        </form>
+          <a-form-item :wrapper-col="{ span: 24 }" class="mt-6! mb-0!">
+            <a-button
+              type="primary"
+              html-type="submit"
+              :loading="loading.isLoading"
+              class="w-full text-sm font-semibold"
+            >
+              Login
+            </a-button>
+          </a-form-item>
+        </a-form>
 
         <!-- Footer Section -->
-        <div class="mt-8 pt-6 divider text-center">
+        <div class="divider mt-8 pt-6 text-center">
           <p class="text-secondary text-xs">©2026 Pet Clinic. All rights reserved.</p>
-          <div class="flex justify-center gap-4 mt-2">
-            <a class="text-label text-xs hover:text-(--color-primary) transition-colors" href="#">Privacy Policy</a>
-            <a class="text-label text-xs hover:text-(--color-primary) transition-colors" href="#">Terms of Service</a>
+          <div class="mt-2 flex justify-center gap-4 text-xs">
+            <a class="text-label transition-colors hover:text-(--color-primary)" href="#">Privacy Policy</a>
+            <a class="text-label transition-colors hover:text-(--color-primary)" href="#">Terms of Service</a>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+:deep(.ant-form-item-label > label) {
+  color: var(--text-label) !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  padding-bottom: 2px !important;
+}
+
+:deep(.ant-input),
+:deep(.ant-input-password) {
+  border-radius: 0 !important;
+}
+
+:deep(.ant-checkbox-checked .ant-checkbox-inner) {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+:deep(.ant-form-item-explain-error) {
+  font-size: 12px;
+  margin-top: 4px;
+}
+</style>

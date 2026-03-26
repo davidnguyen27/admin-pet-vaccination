@@ -1,23 +1,18 @@
 <script setup lang="ts">
-import { IconUserPlus } from '@tabler/icons-vue';
-import { useRouter } from 'vue-router';
+import { IconVaccine } from '@tabler/icons-vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import UserTableFilters from '../components/UserTableFilters.vue';
-import UserTable from '../components/UserTable.vue';
-import UserModal from '../components/UserModal.vue';
-import { useUserManagement } from '../composables/useUserManagement';
-import type { UserRecord } from '../composables/useUserManagement';
-
-const router = useRouter();
+import VaccineFilter from '../components/VaccineFilter.vue';
+import VaccineTable from '../components/VaccineTable.vue';
+import VaccineModal from '../components/VaccineModal.vue';
+import { useVaccineManagement } from '../composables/useVaccineManagement';
 
 const {
   loading,
   modalLoading,
   isModalOpen,
-  editingUser,
+  editingVaccine,
   searchQuery,
-  roleFilter,
-  statusFilter,
+  speciesFilter,
   dataSource,
   columns,
   pagination,
@@ -28,16 +23,7 @@ const {
   handleModalCancel,
   handleEdit,
   handleDelete,
-} = useUserManagement();
-
-const handleViewDetail = (record: UserRecord) => {
-  router.push({
-    path: '/user-management',
-    query: {
-      userId: record.id,
-    },
-  });
-};
+} = useVaccineManagement();
 </script>
 
 <template>
@@ -47,48 +33,44 @@ const handleViewDetail = (record: UserRecord) => {
         class="flex flex-wrap items-center justify-between gap-3 border border-(--divider) bg-(--bg-card) px-4 py-3 shadow-sm"
       >
         <div class="min-w-0">
-          <h1 class="m-0 text-[18px]! font-bold tracking-[-0.02em] text-(--text-primary)">Team Accounts</h1>
+          <h1 class="m-0 text-[18px]! font-bold tracking-[-0.02em] text-(--text-primary)">Vaccine Records</h1>
           <p class="mt-1.5 mr-0 mb-0 ml-0 text-[13px] text-(--text-label)">
-            Control permissions and keep account data clean before scaling modules.
+            Manage vaccine catalog, dosage defaults, and availability status for treatment planning.
           </p>
         </div>
+
         <a-button
           type="primary"
           class="flex! items-center gap-1 border-(--color-primary)! bg-(--color-primary)! px-4! text-sm! font-semibold"
           @click="handleAdd"
         >
           <template #icon>
-            <icon-user-plus :size="16" stroke-width="2" />
+            <icon-vaccine :size="16" stroke-width="2" />
           </template>
-          Add New User
+          Add New Vaccine
         </a-button>
       </div>
 
-      <!-- Filters -->
-      <user-table-filters
+      <vaccine-filter
         v-model:search-query="searchQuery"
-        v-model:role-filter="roleFilter"
-        v-model:status-filter="statusFilter"
+        v-model:species-filter="speciesFilter"
         @search="handleSearch"
       />
 
-      <!-- Table -->
-      <user-table
+      <vaccine-table
         :data-source="dataSource"
         :columns="columns"
         :pagination="pagination"
         :loading="loading"
         @table-change="onTableChange"
-        @view-detail="handleViewDetail"
         @edit="handleEdit"
         @delete="handleDelete"
       />
 
-      <!-- Modal -->
-      <user-modal
+      <vaccine-modal
         v-model:open="isModalOpen"
         :loading="modalLoading"
-        :initial-values="editingUser"
+        :initial-values="editingVaccine"
         @submit="handleModalSubmit"
         @cancel="handleModalCancel"
       />

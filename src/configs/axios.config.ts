@@ -1,13 +1,15 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig, type AxiosResponse } from 'axios';
-import { authStore, loadingStore } from '@/store';
+import axios, { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import router from '@/router';
 import type { IResponseError } from '@/interfaces/i-response';
 import { message } from 'ant-design-vue';
+import { appStore } from '@/store/app.store';
+import { authStore } from '@/features/auth';
 
 export const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
+    Accept: 'application/json',
     'Content-Type': 'application/json',
   },
   withCredentials: true,
@@ -16,6 +18,18 @@ export const axiosInstance = axios.create({
 // Race condition prevention
 let isRefreshing = false;
 let failedQueue: Array<{ resolve: () => void; reject: (error: unknown) => void }> = [];
+const retriedRequests = new WeakSet<InternalAxiosRequestConfig>();
+const authBypassPaths = ['/auth/login', '/auth/refresh-token', '/auth/logout'];
+
+const shouldSkipRefresh = (config?: InternalAxiosRequestConfig) => {
+  const requestUrl = config?.url;
+  if (!requestUrl) {
+    return false;
+  }
+
+  const requestPath = requestUrl.split('?')[0] ?? '';
+  return authBypassPaths.some(path => requestPath.endsWith(path));
+};
 
 const processQueue = (error?: unknown) => {
   failedQueue.forEach(promise => {
@@ -31,22 +45,27 @@ const processQueue = (error?: unknown) => {
 
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    loadingStore().start();
+    appStore().startLoading();
+
+    const useAuthStore = authStore();
+    if (useAuthStore.accessToken) {
+      config.headers.set('Authorization', `Bearer ${useAuthStore.accessToken}`);
+    }
     return config;
   },
   (error: AxiosError) => {
-    loadingStore().stop();
+    appStore().stopLoading();
     return Promise.reject(error);
   },
 );
 
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
-    loadingStore().stop();
+    appStore().stopLoading();
     return response.data;
   },
   async (error: AxiosError) => {
-    loadingStore().stop();
+    appStore().stopLoading();
     if (error.response?.data) {
       const errData = error.response.data as IResponseError;
       if (errData.errors) {
@@ -54,90 +73,52 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig;
     const useAuthStore = authStore();
+    const isRequestRetried = originalRequest ? retriedRequests.has(originalRequest) : false;
+    const skipRefreshForRequest = shouldSkipRefresh(originalRequest);
 
     if (error.response) {
       const status = error.response.status;
 
-      if (
-        status === 401 &&
-        originalRequest &&
-        !originalRequest._retry &&
-        !originalRequest.url?.includes('/auth/login')
-      ) {
+      if (status === 401 && originalRequest && !isRequestRetried && !skipRefreshForRequest) {
         if (isRefreshing) {
-          // If a token refresh is already in progress, put other requests into the queue
+          // Put other requests into the queue
           return new Promise((resolve, reject) => {
-            failedQueue.push({ resolve: () => resolve(undefined), reject });
-          })
-            .then(() => {
-              return axiosInstance(originalRequest);
-            })
-            .catch(err => Promise.reject(err));
+            failedQueue.push({ resolve: () => resolve(axiosInstance(originalRequest)), reject });
+          });
         }
 
-        originalRequest._retry = true;
+        retriedRequests.add(originalRequest);
         isRefreshing = true;
 
         try {
-          // Call refresh token API. Since HttpOnly cookies are used, the backend will automatically read the refreshToken
-          await axiosInstance.post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {}, { withCredentials: true });
+          const response = await axiosInstance.post('/auth/refresh-token');
+          const newToken = response?.data?.accessToken || response?.data?.token;
+          if (newToken) {
+            useAuthStore.setAccessToken(newToken);
+          }
 
-          processQueue(null);
-
+          processQueue();
           return axiosInstance(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError);
 
-          // Refresh token expired and then back to login page
           await useAuthStore.logout();
+          message.error('The session has expired, please login again.');
 
-          // Redirect to login, storing the old path to return after a successful login
           router.push({
             path: '/login',
             query: { redirect: router.currentRoute.value.fullPath },
           });
-
           return Promise.reject(refreshError);
         } finally {
-          loadingStore().stop();
           isRefreshing = false;
         }
       }
-
-      // Global Errors handlers
-      switch (status) {
-        case 400:
-          message.error('Bad Request: Invalid input data.');
-          console.error(error.message);
-          break;
-        case 403:
-          message.error('Forbidden: You do not have permission to access the system this action.');
-          console.error(error.message);
-          break;
-        case 404:
-          message.error('Not Found: The resource was not found on the system.');
-          console.error(error.message);
-          break;
-        case 422:
-          message.error('Validation Error: Invalid information.');
-          console.error(error.message);
-          break;
-        case 500:
-        case 502:
-        case 503:
-          message.error('Server Status: The system is experiencing disruption, please try again later.');
-          console.error(error.message);
-          break;
-      }
     } else if (error.request) {
       message.error('Network Error: Please check your network connection.');
-      console.error(error.message);
-    } else {
-      console.error('Request setup error:', error.message);
     }
-
     return Promise.reject(error);
   },
 );
