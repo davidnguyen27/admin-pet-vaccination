@@ -1,0 +1,137 @@
+@use 'sass:map';
+
+$breakpoints: (
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+);
+
+@mixin media-up($point) {
+  $size: map.get($breakpoints, $point);
+
+  @if $size == null {
+    @error "Unknown breakpoint: #{$point}.";
+  }
+
+  @media (min-width: $size) {
+    @content;
+  }
+}
+
+@mixin media-down($point) {
+  $size: map.get($breakpoints, $point);
+
+  @if $size == null {
+    @error "Unknown breakpoint: #{$point}.";
+  }
+
+  @media (max-width: ($size - 0.02)) {
+    @content;
+  }
+}
+
+@mixin flex-center($direction: row, $gap: 0) {
+  display: flex;
+  flex-direction: $direction;
+  align-items: center;
+  justify-content: center;
+  gap: $gap;
+}
+
+@mixin flex-between($align: center, $gap: 0) {
+  display: flex;
+  align-items: $align;
+  justify-content: space-between;
+  gap: $gap;
+}
+
+@mixin grid-fit($min: 240px, $gap: 16px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min, 1fr));
+  gap: $gap;
+}
+
+@mixin text-truncate($lines: 1) {
+  overflow: hidden;
+
+  @if $lines == 1 {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+  }
+}
+
+@mixin card-surface($padding: 16px) {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  border-radius: 12px;
+  padding: $padding;
+}
+
+@mixin focus-ring($color: var(--primary), $offset: 2px) {
+  outline: none;
+  box-shadow: 0 0 0 $offset color-mix(in srgb, $color 40%, transparent);
+}
+
+@mixin button-base($padding-y: 8px, $padding-x: 16px) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: $padding-y $padding-x;
+  font-weight: 510;
+  line-height: 1;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    @include focus-ring();
+  }
+}
+
+@mixin status-badge($bg, $text: var(--surface), $padding-y: 2px, $padding-x: 8px) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: $bg;
+  color: $text;
+  font-size: 12px;
+  font-weight: 510;
+  line-height: 1.4;
+  padding: $padding-y $padding-x;
+}
+
+@mixin scroll-y($max-height) {
+  max-height: $max-height;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
