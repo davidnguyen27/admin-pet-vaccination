@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Login from '@/features/auth/pages/Login.vue';
+import SignInPage from '@/features/auth/pages/SignInPage.vue';
 </script>
 
 <template>
-  <Login />
+  <SignInPage />
 </template>
 
 <style scoped></style>

@@ -1,0 +1,3 @@
+## All stores declare here.
+
+- examples: authStore, userStore, ...

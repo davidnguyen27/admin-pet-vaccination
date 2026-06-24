@@ -1,0 +1,1 @@
+// All endpoints url declare here.

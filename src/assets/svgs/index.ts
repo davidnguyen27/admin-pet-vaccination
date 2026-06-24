@@ -1,0 +1,1 @@
+// SVGs icons gallery

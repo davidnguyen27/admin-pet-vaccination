@@ -1,0 +1,1 @@
+## I18n, Pinia, ... plugins are declared here
