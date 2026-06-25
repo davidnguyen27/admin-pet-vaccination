@@ -26,7 +26,7 @@ const routes = [
     component: ForgotPasswordPage,
   },
   {
-    path: '/dashboard',
+    path: '/statistic',
     component: StatisticsOverview,
   },
   {

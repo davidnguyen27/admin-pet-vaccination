@@ -22,10 +22,10 @@ const { t } = useLocale();
 
 const menuItems = computed(() => [
   {
-    key: '/dashboard',
-    to: '/dashboard',
+    key: '/statistic',
+    to: '/statistic',
     icon: IconLayoutDashboard,
-    label: t('navigation.dashboard'),
+    label: t('navigation.statistics'),
     group: t('navigation.overview'),
   },
   {

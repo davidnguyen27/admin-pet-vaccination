@@ -92,5 +92,18 @@
   "error": "Lỗi",
   "yes": "Có",
   "no": "Không",
-  "deleteConfirm": "Bạn có chắc chắn muốn xóa mục này? Hành động này không thể hoàn tác."
+  "deleteConfirm": "Bạn có chắc chắn muốn xóa mục này? Hành động này không thể hoàn tác.",
+
+  "navigation": {
+    "statistics": "Thống kê",
+    "users": "Người dùng",
+    "vaccines": "Vắc-xin",
+    "microchips": "Microchips",
+    "healthCertificate": "Chứng nhận sức khỏe",
+    "pets": "Thú cưng",
+    "vouchers": "Vouchers",
+    "schedulesWorking": "Lịch làm việc",
+    "management": "Quản lý",
+    "overview": "Tổng quan"
+  }
 }
