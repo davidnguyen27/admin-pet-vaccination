@@ -1,8 +1,8 @@
 import { createApp } from 'vue';
-import Antd from 'ant-design-vue';
 import App from '@/App.vue';
+import Antd from 'ant-design-vue';
 import router from '@/core/router';
-import './index.css';
+import '../index.css';
 import '@/assets/scss/main.scss';
 import 'ant-design-vue/dist/reset.css';
 import { pinia } from '@/core/plugins/pinia';
