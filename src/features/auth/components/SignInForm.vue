@@ -33,7 +33,7 @@ async function handleLogin() {
       password: formState.password,
     });
     message.success(t('auth.signInSuccess'));
-    router.push('/dashboard');
+    router.push('/statistic');
   } catch (error) {
     message.error(error as any);
   }
