@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import DefaultLayout from '@/layouts/DefaultLayout.vue';
+import PageLayout from '@/layouts/PageLayout.vue';
 import { IconChevronLeft, IconPencilMinus } from '@tabler/icons-vue';
 </script>
 
 <template>
-  <DefaultLayout>
+  <PageLayout>
     <div class="flex items-center justify-between">
       <div class="flex flex-col gap-1">
         <span class="font-ibm text-text text-xl font-bold">Information</span>
@@ -37,5 +37,5 @@ import { IconChevronLeft, IconPencilMinus } from '@tabler/icons-vue';
         </div>
       </div>
     </div>
-  </DefaultLayout>
+  </PageLayout>
 </template>
