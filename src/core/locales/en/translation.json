@@ -133,6 +133,7 @@
   "yes": "Yes",
   "no": "No",
   "deleteConfirm": "Are you sure you want to delete this item? This action cannot be undone.",
+  "required": "This field is required",
 
   "navigation": {
     "statistics": "Statistics",

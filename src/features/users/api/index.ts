@@ -9,30 +9,30 @@ export interface UserParams extends I_Params {
 }
 
 export interface CreateUserPayload {
-  email?: string;
-  password?: string;
-  roleCode?: string;
+  email?: string; // required
+  password?: string; // required
+  roleCode?: string; // required
   fullName?: string;
   phoneNumber?: string;
   avatar?: File | null;
   dob?: string;
   address?: string;
-  locationLat?: number;
-  locationLng?: number;
-  staffCode?: string;
-  jobTitle?: string;
-  department?: string;
-  employmentType?: string;
-  employmentStatus?: string;
-  joinDate?: string;
+  locationLat?: number; // owner
+  locationLng?: number; // owner
+  staffCode?: string; // staff
+  jobTitle?: string; // staff
+  department?: string; // staff
+  employmentType?: string; // staff
+  employmentStatus?: string; // staff and vet
+  joinDate?: string; // staff and vet
   endDate?: string;
-  citizenId?: string;
+  citizenId?: string; // staff and vet
   notes?: string;
-  bio?: string;
-  licenseNo?: string;
-  licenseIssueBy?: string;
-  licenseValidFrom?: string;
-  licenseValidTo?: string;
+  bio?: string; // vet
+  licenseNo?: string; // vet
+  licenseIssueBy?: string; // vet
+  licenseValidFrom?: string; // vet
+  licenseValidTo?: string; // vet
 }
 
 export const userAPI = {

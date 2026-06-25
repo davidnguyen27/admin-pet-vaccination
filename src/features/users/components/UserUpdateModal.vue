@@ -71,8 +71,8 @@ watch(
 );
 
 function handleAvatarChange(info: any) {
-  if (info.file && info.file.originFileObj) {
-    const file = info.file.originFileObj;
+  const file = info.file?.originFileObj || info.file || info;
+  if (file && file instanceof File) {
     avatarFile.value = file;
     avatarPreview.value = URL.createObjectURL(file);
   }

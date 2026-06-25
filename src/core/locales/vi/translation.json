@@ -93,6 +93,7 @@
   "yes": "Có",
   "no": "Không",
   "deleteConfirm": "Bạn có chắc chắn muốn xóa mục này? Hành động này không thể hoàn tác.",
+  "required": "Không được để trống",
 
   "navigation": {
     "statistics": "Thống kê",

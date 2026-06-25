@@ -7,6 +7,7 @@ const ProfilePage = () => import('@/features/auth/pages/ProfilePage.vue');
 const StatisticsOverview = () => import('@/features/statistics/pages/StatisticsOverview.vue');
 const UserOverviewPage = () => import('@/features/users/pages/UserOverviewPage.vue');
 const UserDetailPage = () => import('@/features/users/pages/UserDetailPage.vue');
+const CreateUserPage = () => import('@/features/users/pages/CreateUserPage.vue');
 // const PetManagement = () => import('@/features/pets/views/PetManagement.vue');
 // const VaccineManagement = () => import('@/features/vaccines/views/VaccineManagement.vue');
 // const MicrochipManagement = () => import('@/features/microchips/views/MicrochipManagement.vue');
@@ -36,6 +37,11 @@ const routes = [
         path: '',
         name: 'UserOverview',
         component: UserOverviewPage,
+      },
+      {
+        path: 'create',
+        name: 'CreateUser',
+        component: CreateUserPage,
       },
       {
         path: ':id',

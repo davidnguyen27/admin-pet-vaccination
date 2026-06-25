@@ -2,9 +2,9 @@
 import PageLayout from '@/layouts/PageLayout.vue';
 import { IconPlus, IconReload, IconUsers, IconBriefcase, IconStethoscope, IconHome } from '@tabler/icons-vue';
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import UserAccountTab from '../components/UserAccountTab.vue';
 import UserUpdateModal from '../components/UserUpdateModal.vue';
-import UserCreateModal from '../components/UserCreateModal.vue';
 import TabToggle from '@/shared/components/ui/TabToggle.vue';
 import { useLocale } from '@/shared/composables/useLocale.ts';
 import { useUserStore } from '@/store/userStore';
@@ -12,13 +12,13 @@ import { storeToRefs } from 'pinia';
 
 const { t } = useLocale();
 const userStore = useUserStore();
+const router = useRouter();
 const { overView } = storeToRefs(userStore);
 
 const activeTab = ref('all');
 const refreshKey = ref(0);
 
 const isUpdateModalOpen = ref(false);
-const isCreateModalOpen = ref(false);
 const selectedUserId = ref<string | null>(null);
 const selectedUserInitialData = ref<any>(null);
 
@@ -80,7 +80,7 @@ const tabs = [
               <template #icon><IconReload size="18" class="text-text-muted" /></template>
             </a-button>
           </a-tooltip>
-          <a-button type="primary" size="large" class="flex items-center justify-center gap-2 shadow-sm" @click="isCreateModalOpen = true">
+          <a-button type="primary" size="large" class="flex items-center justify-center gap-2 shadow-sm" @click="router.push('/user-management/create')">
             <template #icon><IconPlus size="18" /></template>
             <span class="font-medium">{{ t('add') }}</span>
           </a-button>
@@ -120,11 +120,6 @@ const tabs = [
       v-model:open="isUpdateModalOpen"
       :user-id="selectedUserId"
       :initial-data="selectedUserInitialData"
-      @success="handleUpdateSuccess"
-    />
-
-    <UserCreateModal
-      v-model:open="isCreateModalOpen"
       @success="handleUpdateSuccess"
     />
   </PageLayout>
