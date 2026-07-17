@@ -35,6 +35,9 @@ importers:
       tailwindcss:
         specifier: ^4.2.1
         version: 4.2.1
+      vee-validate:
+        specifier: ^4.15.1
+        version: 4.15.1(vue@3.5.30(typescript@5.9.3))
       vue:
         specifier: ^3.5.25
         version: 3.5.30(typescript@5.9.3)
@@ -1172,6 +1175,10 @@ packages:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
     engines: {node: '>=12.0.0'}
 
+  type-fest@4.41.0:
+    resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
+    engines: {node: '>=16'}
+
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
@@ -1179,6 +1186,11 @@ packages:
 
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+
+  vee-validate@4.15.1:
+    resolution: {integrity: sha512-DkFsiTwEKau8VIxyZBGdO6tOudD+QoUBPuHj3e6QFqmbfCRj1ArmYWue9lEp6jLSWBIw4XPlDLjFIZNLdRAMSg==}
+    peerDependencies:
+      vue: ^3.4.26
 
   vite@7.3.1:
     resolution: {integrity: sha512-w+N7Hifpc3gRjZ63vYBXA56dvvRlNWRczTdmCBBa+CotUzAPf5b7YMdMR/8CQoeYE5LX3W4wj6RYTgonm1b9DA==}
@@ -2142,9 +2154,17 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
 
+  type-fest@4.41.0: {}
+
   typescript@5.9.3: {}
 
   undici-types@7.16.0: {}
+
+  vee-validate@4.15.1(vue@3.5.30(typescript@5.9.3)):
+    dependencies:
+      '@vue/devtools-api': 7.7.9
+      type-fest: 4.41.0
+      vue: 3.5.30(typescript@5.9.3)
 
   vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.98.0):
     dependencies:
