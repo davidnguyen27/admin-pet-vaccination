@@ -1,27 +1,34 @@
 # GEMINI.md
 
-## Project Overview
+# Project Overview
 
-This is a Vue 3 + TypeScript admin dashboard for a pet vaccination management system.
+This project is an Admin system for a Pet Vaccination Management System.
 
-The project is for admin users only.
+The frontend is built with Vue 3 and TypeScript using a feature-based architecture.
 
-Tech stack:
+This file contains only project-wide instructions.
+
+Detailed implementation rules are located under `.agents/rules/`.
+
+---
+
+# Tech Stack
 
 - Vue 3
 - TypeScript
 - Pinia
 - Vue Router
 - Ant Design Vue
-- Tabler Icons
+- vee-validate
 - Axios
 - vue-i18n
+- Tabler Icons
 
-The goal is to build a clean, maintainable, and scalable admin management system.
+---
 
-## Commands
+# Commands
 
-Use these commands when working in this project:
+Use the following commands when working in this project.
 
 ```bash
 pnpm install
@@ -31,74 +38,135 @@ pnpm type-check
 pnpm lint
 ```
 
-Do not add a testing step unless the user explicitly asks for it.
+Do not introduce new libraries unless explicitly approved.
 
-Before finishing a coding task, run the relevant checks when possible:
+Before finishing a coding task, run when possible:
 
 ```bash
 pnpm type-check
 pnpm lint
 ```
 
-## Architecture Flow
+---
 
-Use this flow for API-related data:
+# Rule Loading
 
-```txt
-Component → Pinia Store → API Service → axiosClient
+Always read:
+
+```
+.agents/rules/00-core.md
 ```
 
-Rules:
+Load additional rule files only when they are relevant to the current task.
 
-- Components must call Pinia store actions.
-- Stores must call API services.
-- API services must call `axiosClient`.
-- Components must not call API services or `axiosClient` directly.
-- Keep API data, loading state, pagination, and API filters inside the store.
-- Component may keep temporary UI state such as modal state, selected row, and form draft values.
+### Vue Components
 
-## Main Rules
+```
+.agents/rules/10-vue-project.md
+```
 
-- Use Vue 3 Composition API only.
-- Always use `<script setup lang="ts">`.
-- Do not use Options API.
-- Use typed props, emits, API params, API responses, and store state.
-- Avoid `any`.
-- Use `computed` for derived state.
-- Use `watch` only for side effects.
-- Keep template logic simple.
-- Keep business logic out of templates.
-- Use PascalCase for Vue component files.
-- Use `storeToRefs` when extracting Pinia state or getters.
-- Do not add new libraries unless explicitly approved.
-- Do not perform broad refactors unless explicitly requested.
+### API, Axios and Pinia
 
-## UI Direction
+```
+.agents/rules/20-api-store.md
+```
 
-- Use Ant Design Vue consistently.
-- Keep UI clean, flat, and readable.
-- Prefer a traditional admin UI style.
-- Avoid trendy visual effects.
-- Avoid large border radius.
-- If border radius is necessary, use max `4px`.
-- Avoid shadows unless needed for hierarchy such as dropdowns, modals, or popovers.
-- Do not use inline `style` attributes in templates.
+### UI and i18n
 
-## Agent Rules
+```
+.agents/rules/30-ui-i18n.md
+```
 
-Follow these rules:
+### Admin Domain
 
-- Read `.agents/rules/00-core.md` first.
-- For Vue component work, follow `.agents/rules/10-vue-project.md`.
-- For API, Axios, Pinia, and server state, follow `.agents/rules/20-api-store.md`.
-- For UI, Ant Design Vue, and i18n, follow `.agents/rules/30-ui-i18n.md`.
-- Use skills only when the task matches the skill scope.
+```
+.agents/rules/40-domain.md
+```
 
-## Final Response Format
+### Form Validation
+
+```
+.agents/rules/50-form-validation.md
+```
+
+---
+
+# Wireframe
+
+The Admin wireframe documentation is located at:
+
+```
+docs/wireframe_guide.md
+```
+
+Read only the module related to the current task.
+
+The wireframe describes screen layout, navigation and responsibilities.
+
+It is **not** the backend source of truth.
+
+---
+
+# Source of Truth
+
+When implementing a feature, use the following priority.
+
+1. Backend API contract
+2. Existing domain models and shared types
+3. Relevant rule files
+4. Wireframe guide
+5. Existing frontend implementation
+
+Never invent:
+
+- API fields
+- response shapes
+- enum values
+- business state transitions
+- permissions
+- financial calculations
+- inventory mutations
+
+If the backend contract conflicts with the wireframe:
+
+- preserve the backend contract;
+- report the mismatch clearly;
+- do not implement frontend-only workarounds.
+
+---
+
+# Scope Control
+
+Before implementing a feature:
+
+- inspect the existing project first;
+- reuse existing components whenever possible;
+- reuse existing stores and API services;
+- implement only the requested scope;
+- avoid unrelated refactoring;
+- report missing backend APIs instead of inventing behavior.
+
+---
+
+# Skills
+
+Use project skills only when the requested task matches the skill purpose.
+
+Do not load unrelated skills.
+
+---
+
+# Final Response
 
 Before finishing a coding task, always include:
 
-1. Summary of what was changed.
-2. List of changed files.
-3. Important decisions.
-4. Anything the user should manually review or test.
+1. Summary of changes.
+2. Files changed.
+3. Important implementation decisions.
+4. Anything that should be manually reviewed.
+
+If applicable, also report:
+
+- missing APIs;
+- backend/frontend contract mismatches;
+- checks that could not be executed.

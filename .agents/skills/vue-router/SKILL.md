@@ -52,6 +52,8 @@ watch(
 
 Use query params for filter/search/pagination state when the state should survive refresh, sharing, or browser back/forward.
 
+> **Source of Truth Warning:** The URL Query Parameters should be the **single source of truth** for list state (pagination, filters). Do not attempt to sync this state two-ways with Pinia, as it will lead to race conditions. Components should read from the route and trigger API calls directly or via store actions, but avoid keeping a parallel state in the store.
+
 Good:
 
 ```ts

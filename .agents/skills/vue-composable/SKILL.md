@@ -72,3 +72,4 @@ Do not use `MaybeRefOrGetter` for callback functions.
 - Do not mix API service logic into generic composables.
 - Do not hide important store mutations inside unclear composables.
 - Return explicit state and methods.
+- **Cleanup (Memory Leaks):** Any composable that creates side effects (e.g., `addEventListener`, `setTimeout`, `setInterval`) MUST clean them up using `onUnmounted`. Failing to do so causes memory leaks.

@@ -14,7 +14,29 @@ Debug in this order:
 5. Provide the smallest safe fix.
 6. Mention any manual test needed.
 
+## Debugging Tools
+
+- Use **Vue DevTools** to inspect Component state, track Pinia mutations (Timeline), and debug routing.
+
 ## Common Vue Checks
+
+### Memory Leaks & Cleanup
+
+Check if the component or its composables are registering event listeners or intervals without cleaning them up in `onUnmounted`.
+
+### Reactivity Loss
+
+Check if props or reactive objects are destructured without `toRefs`, which destroys reactivity.
+
+Bad:
+
+```ts
+const { roleCode } = props; // Reactivity lost!
+```
+
+### Race Conditions
+
+Check if API calls are triggering state updates inconsistently, especially when the URL and Pinia are both trying to act as the source of truth for the same filter state.
 
 ### Props
 

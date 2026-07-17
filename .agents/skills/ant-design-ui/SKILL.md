@@ -40,16 +40,40 @@ Avoid:
 <a-card class="rounded-2xl shadow-xl" />
 ```
 
-## Forms
+## Forms & Validation
 
-Use Ant Design Vue form components.
+Use Ant Design Vue form components integrated with `vee-validate` (via Composition API: `useForm`, `useField`).
+
+Do not use the default `:rules` prop of Ant Design `a-form` if `vee-validate` is the standard for the project.
 
 ```vue
-<a-form :model="formState" layout="vertical" :rules="rules" @finish="handleSubmit">
-  <a-form-item name="email">
-    <a-input v-model:value="formState.email" />
-  </a-form-item>
-</a-form>
+<script setup lang="ts">
+import { useForm, useField } from 'vee-validate';
+import * as yup from 'yup';
+
+const { handleSubmit } = useForm({
+  validationSchema: yup.object({
+    email: yup.string().required().email(),
+  }),
+});
+
+const { value: email, errorMessage: emailError } = useField<string>('email');
+
+const onSubmit = handleSubmit((values) => {
+  // submit logic
+});
+</script>
+
+<template>
+  <a-form layout="vertical" @finish="onSubmit">
+    <a-form-item 
+      :validate-status="emailError ? 'error' : ''" 
+      :help="emailError"
+    >
+      <a-input v-model:value="email" />
+    </a-form-item>
+  </a-form>
+</template>
 ```
 
 ## Tables

@@ -30,6 +30,9 @@ Review code in this order:
 - missing API response types
 - hardcoded UI text
 - unnecessary border radius or shadows
+- missing `onUnmounted` cleanup in composables (Memory leak)
+- conflicting Source of Truth between URL query and Pinia for lists
+- missing or incorrect `vee-validate` integration for forms
 - broad unrelated refactors
 - new libraries added without approval
 
