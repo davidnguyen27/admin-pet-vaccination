@@ -1,6 +1,21 @@
 import { defineStore } from 'pinia';
-import { authAPI } from '@/features/auth/api';
 import type { User } from '@/shared/types/user.type';
+
+const MOCK_AUTH_USER: User = {
+  id: 'mock-admin',
+  role: 'ADMIN',
+  email: 'admin@petclinic.vn',
+  fullName: 'Admin PetVax',
+  phoneNumber: '0900000000',
+  avatarUrl: '',
+  dob: '1995-01-01',
+  isActive: true,
+  isDeleted: false,
+  lastLoginAt: new Date().toISOString(),
+  createdAt: '2025-01-01T00:00:00.000Z',
+  updatedAt: new Date().toISOString(),
+  deletedAt: null,
+};
 
 interface AuthState {
   user: User | null;
@@ -29,14 +44,13 @@ export const useAuthStore = defineStore('auth', {
     async login(payload: { email: string; password: string }) {
       this.isLoading = true;
       try {
-        const response = await authAPI.login(payload);
-        const token = response.data?.accessToken;
-        const user = response.data?.user;
-
-        if (token) this.setAccessToken(token);
-        if (user) this.user = user;
-      } catch (error: any) {
-        throw error?.message;
+        this.setAccessToken(`mock-token-${Date.now()}`);
+        this.user = {
+          ...MOCK_AUTH_USER,
+          email: payload.email || MOCK_AUTH_USER.email,
+          lastLoginAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
       } finally {
         this.isLoading = false;
       }
@@ -45,14 +59,15 @@ export const useAuthStore = defineStore('auth', {
     async fetchCurrentUser() {
       this.isLoading = true;
       try {
-        const response = await authAPI.getCurrentUser();
-        const user = response.data?.user || response.data;
-        if (user) {
-          this.user = user;
+        if (!this.user) {
+          this.user = MOCK_AUTH_USER;
         }
-        return response;
-      } catch (error) {
-        console.error('Error fetching current user:', error);
+        return {
+          success: true,
+          statusCode: 200,
+          message: 'Mock current user loaded',
+          data: this.user,
+        };
       } finally {
         this.isLoading = false;
       }
@@ -60,13 +75,9 @@ export const useAuthStore = defineStore('auth', {
 
     async logout() {
       this.isLoading = true;
-      try {
-        await authAPI.logout();
-      } finally {
-        this.user = null;
-        this.accessToken = null;
-        this.isLoading = false;
-      }
+      this.user = null;
+      this.accessToken = null;
+      this.isLoading = false;
     },
   },
 });
