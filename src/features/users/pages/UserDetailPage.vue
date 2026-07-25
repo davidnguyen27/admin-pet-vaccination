@@ -5,13 +5,12 @@ import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/userStore';
 import PageLayout from '@/layouts/PageLayout.vue';
 import UserUpdateModal from '../components/UserUpdateModal.vue';
-import DeleteModal from '@/shared/components/ui/DeleteModal.vue';
+import DeleteModal from '@/shared/components/DeleteModal.vue';
 import {
   IconEdit,
   IconShieldLock,
   IconInfoCircle,
   IconShieldLockFilled,
-  IconCircleFilled,
   IconArrowLeft,
   IconTrash,
 } from '@tabler/icons-vue';
@@ -38,7 +37,7 @@ onMounted(() => {
   }
 });
 
-function renderUserName() {
+const renderUserName = () => {
   return (
     user.value?.fullName
       ?.split(' ')
@@ -47,13 +46,13 @@ function renderUserName() {
       .substring(0, 3)
       .toUpperCase() || 'U'
   );
-}
+};
 
-function handleEditProfile() {
+const handleEditProfile = () => {
   isUpdateModalOpen.value = true;
-}
+};
 
-async function handleDeleteUser() {
+const handleDeleteUser = async () => {
   if (!userId.value) return;
   isDeleting.value = true;
   try {
@@ -67,52 +66,41 @@ async function handleDeleteUser() {
   } finally {
     isDeleting.value = false;
   }
-}
+};
 
-function handleUpdateSuccess() {
+const handleUpdateSuccess = () => {
   if (userId.value) {
     userStore.getUser(userId.value);
   }
-}
+};
 </script>
 
 <template>
   <PageLayout>
-    <div class="flex items-start justify-between">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div class="flex flex-col gap-1">
-        <span class="font-ibm text-text text-xl font-bold">
+        <h1 class="font-ibm text-text text-xl font-bold">
           {{ t('user.userProfile') }}
-        </span>
+        </h1>
         <span class="text-text-muted text-sm">
           {{ t('user.manageUserDesc') }}
         </span>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center gap-3">
         <a-button
           type="default"
-          size="large"
           @click="() => router.push('/user-management')"
-          class="hover:border-border! flex items-center justify-center gap-2 shadow-sm"
+          class="flex items-center justify-center gap-2"
         >
-          <template #icon><IconArrowLeft size="18" /></template>
+          <template #icon><IconArrowLeft class="size-4.5" /></template>
           <span class="font-medium">{{ t('user.backToDashboard') }}</span>
         </a-button>
-        <a-button
-          danger
-          size="large"
-          class="flex items-center justify-center gap-2 shadow-sm"
-          @click="isDeleteModalOpen = true"
-        >
-          <template #icon><IconTrash size="18" class="text-error" /></template>
+        <a-button danger class="flex items-center justify-center gap-2" @click="isDeleteModalOpen = true">
+          <template #icon><IconTrash class="text-error size-4.5" /></template>
           <span class="text-error font-medium">{{ t('Delete') }}</span>
         </a-button>
-        <a-button
-          @click="handleEditProfile"
-          type="primary"
-          size="large"
-          class="hover:bg-primary-hover flex items-center justify-center gap-2 shadow-sm"
-        >
-          <template #icon><IconEdit size="18" class="text-white" /></template>
+        <a-button @click="handleEditProfile" type="primary" class="flex items-center justify-center gap-2">
+          <template #icon><IconEdit class="size-4.5 text-white" /></template>
           <span class="font-medium text-white">{{ t('user.editProfile') }}</span>
         </a-button>
       </div>
@@ -122,16 +110,16 @@ function handleUpdateSuccess() {
       <a-spin size="large" />
     </div>
 
-    <div v-else-if="user" class="mt-6 flex flex-col gap-6 lg:flex-row">
+    <div v-else-if="user" class="mt-6 flex flex-col gap-6 xl:flex-row">
       <!-- Left Panel -->
-      <div class="flex w-full flex-col gap-6 lg:w-1/3">
-        <div class="border-border bg-surface flex flex-col items-center rounded border p-6">
-          <div v-if="user.avatarUrl" class="border-border mb-4 h-24 w-24 overflow-hidden rounded-full border">
+      <div class="flex w-full flex-col gap-6 xl:w-1/3">
+        <div class="shadow-card border-divider bg-surface flex flex-col items-center rounded-md border p-6">
+          <div v-if="user.avatarUrl" class="border-divider mb-4 size-24 overflow-hidden rounded-full border shadow-sm">
             <img :src="user.avatarUrl" alt="Avatar" class="h-full w-full object-cover" />
           </div>
           <div
             v-else
-            class="bg-primary-soft text-primary mb-4 flex h-24 w-24 items-center justify-center rounded-full text-3xl font-bold"
+            class="bg-primary-soft text-primary border-primary-soft mb-4 flex size-24 items-center justify-center rounded-full border text-3xl font-bold shadow-sm"
           >
             {{ renderUserName() }}
           </div>
@@ -144,15 +132,15 @@ function handleUpdateSuccess() {
               {{ mapRoleCode(user.role) }}
             </span>
             <span
-              class="flex items-center gap-1 rounded px-3 py-1 text-xs font-semibold"
-              :class="user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+              class="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+              :class="user.isActive ? 'bg-success-bg text-success' : 'bg-error-bg text-error'"
             >
-              <IconCircleFilled size="8" />
+              <span class="size-1.5 rounded-full" :class="user.isActive ? 'bg-success' : 'bg-error'"></span>
               {{ user.isActive ? t('active') : t('inactive') }}
             </span>
           </div>
 
-          <div class="bg-border mb-4 h-px w-full"></div>
+          <div class="bg-divider mb-4 h-px w-full"></div>
 
           <p class="text-text-muted text-xs">
             {{ t('user.lastLogin') }}:
@@ -160,27 +148,27 @@ function handleUpdateSuccess() {
           </p>
         </div>
 
-        <div class="border-border bg-surface rounded border">
-          <div class="flex items-center gap-2 p-4 pb-2">
-            <IconShieldLock class="text-primary" size="20" />
-            <h3 class="text-text text-sm font-semibold">{{ t('user.securitySettings') }}</h3>
+        <div class="shadow-card border-divider bg-surface rounded-md border">
+          <div class="flex items-center gap-2 p-5 pb-3">
+            <IconShieldLock class="text-primary size-5" />
+            <h3 class="font-ibm text-text text-base font-semibold">{{ t('user.securitySettings') }}</h3>
           </div>
           <div class="flex flex-col">
-            <div class="border-border flex items-center justify-between border-b p-4">
+            <div class="border-divider flex items-center justify-between border-b p-5">
               <div>
                 <p class="text-text mb-0.5 text-xs font-medium">{{ t('user.password') }}</p>
                 <p class="text-text-muted text-[11px]">******</p>
               </div>
               <a href="#" class="text-primary text-xs font-semibold hover:underline">Update</a>
             </div>
-            <div class="border-border flex items-center justify-between border-b p-4">
+            <div class="border-divider flex items-center justify-between border-b p-5">
               <div>
                 <p class="text-text mb-0.5 text-xs font-medium">{{ t('user.twoFactorAuth') }}</p>
                 <p class="text-text-muted text-[11px]">-</p>
               </div>
               <a href="#" class="text-primary text-xs font-semibold hover:underline">Manage</a>
             </div>
-            <div class="flex items-center justify-between p-4">
+            <div class="flex items-center justify-between p-5">
               <div>
                 <p class="text-text mb-0.5 text-xs font-medium">{{ t('user.activeSessions') }}</p>
                 <p class="text-text-muted text-[11px]">-</p>
@@ -192,58 +180,74 @@ function handleUpdateSuccess() {
       </div>
 
       <!-- Right Panel -->
-      <div class="flex w-full flex-col gap-6 lg:w-2/3">
-        <div class="border-border bg-surface relative rounded border p-6">
-          <h3 class="text-text mb-6 text-sm font-semibold">{{ t('user.accountInformation') }}</h3>
-          <IconInfoCircle class="text-text-muted absolute top-6 right-6" size="20" />
+      <div class="flex w-full flex-col gap-6 xl:w-2/3">
+        <div class="shadow-card border-divider bg-surface relative rounded-md border p-6">
+          <h3 class="font-ibm text-text mb-6 text-base font-semibold">{{ t('user.accountInformation') }}</h3>
+          <IconInfoCircle class="text-text-muted absolute top-6 right-6 size-5" />
 
           <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-2">
             <div>
-              <p class="text-text-muted mb-1 text-[11px]">{{ t('user.email') }}</p>
+              <p class="text-text-muted mb-1 text-[11px] font-semibold tracking-wide uppercase">
+                {{ t('user.email') }}
+              </p>
               <p class="text-text text-sm font-medium">{{ user.email || '-' }}</p>
             </div>
             <div>
-              <p class="text-text-muted mb-1 text-[11px]">{{ t('user.status') }}</p>
+              <p class="text-text-muted mb-1 text-[11px] font-semibold tracking-wide uppercase">
+                {{ t('user.status') }}
+              </p>
               <p class="text-text text-sm font-medium">{{ user.isActive ? t('active') : t('inactive') }}</p>
             </div>
             <div>
-              <p class="text-text-muted mb-1 text-[11px]">{{ t('user.dob') }}</p>
+              <p class="text-text-muted mb-1 text-[11px] font-semibold tracking-wide uppercase">{{ t('user.dob') }}</p>
               <p class="text-text text-sm font-medium">{{ formatDate(user.dob) }}</p>
             </div>
             <div>
-              <p class="text-text-muted mb-1 text-[11px]">{{ t('user.createdDate') }}</p>
+              <p class="text-text-muted mb-1 text-[11px] font-semibold tracking-wide uppercase">
+                {{ t('user.createdDate') }}
+              </p>
               <p class="text-text text-sm font-medium">{{ formatDate(user.createdAt) }}</p>
             </div>
             <div>
-              <p class="text-text-muted mb-1 text-[11px]">{{ t('user.lastUpdated') }}</p>
+              <p class="text-text-muted mb-1 text-[11px] font-semibold tracking-wide uppercase">
+                {{ t('user.lastUpdated') }}
+              </p>
               <p class="text-text text-sm font-medium">{{ formatDate(user.updatedAt) }}</p>
             </div>
           </div>
         </div>
 
-        <div class="border-border bg-surface rounded border p-6">
-          <h3 class="text-text mb-6 text-sm font-semibold">{{ t('user.contactDetails') }}</h3>
+        <div class="shadow-card border-divider bg-surface rounded-md border p-6">
+          <h3 class="font-ibm text-text mb-6 text-base font-semibold">{{ t('user.contactDetails') }}</h3>
           <div class="mb-6 grid grid-cols-1 gap-y-6 sm:grid-cols-2">
             <div>
-              <p class="text-text-muted mb-1 text-[11px]">{{ t('user.phoneNumber') }}</p>
+              <p class="text-text-muted mb-1 text-[11px] font-semibold tracking-wide uppercase">
+                {{ t('user.phoneNumber') }}
+              </p>
               <p class="text-text text-sm font-medium">{{ user.phoneNumber || '-' }}</p>
             </div>
             <div>
-              <p class="text-text-muted mb-1 text-[11px]">{{ t('user.email') }}</p>
+              <p class="text-text-muted mb-1 text-[11px] font-semibold tracking-wide uppercase">
+                {{ t('user.email') }}
+              </p>
               <p class="text-text text-sm font-medium">{{ user.email || '-' }}</p>
             </div>
           </div>
         </div>
 
-        <div class="border-border bg-surface rounded border p-6">
-          <h3 class="text-text mb-4 text-sm font-semibold">{{ t('user.roleAndPermissions') }}</h3>
+        <div class="shadow-card border-divider bg-surface rounded-md border p-6">
+          <h3 class="font-ibm text-text mb-4 text-base font-semibold">{{ t('user.roleAndPermissions') }}</h3>
 
-          <p class="text-text-muted mb-2 text-[11px]">{{ t('user.accessLevel') }}</p>
-          <div class="bg-primary-soft border-primary/20 mb-6 flex items-start gap-3 rounded border p-4">
-            <IconShieldLockFilled class="text-primary mt-0.5" size="24" />
+          <p class="text-text-muted mb-2 text-[11px] font-semibold tracking-wide uppercase">
+            {{ t('user.accessLevel') }}
+          </p>
+          <div class="bg-primary-soft border-primary-soft mb-2 flex items-start gap-3 rounded-md border p-4 shadow-sm">
+            <IconShieldLockFilled class="text-primary mt-0.5 size-6" />
             <div>
-              <p class="text-primary text-sm font-semibold">{{ mapRoleCode(user.role) }}</p>
-              <p class="text-text-muted mt-0.5 text-xs">-</p>
+              <p class="text-primary text-sm font-bold">{{ mapRoleCode(user.role) }}</p>
+              <p class="text-primary-soft-contrast mt-0.5 text-xs">
+                Has full access based on their assigned role level.
+              </p>
             </div>
           </div>
         </div>

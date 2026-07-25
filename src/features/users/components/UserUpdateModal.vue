@@ -132,14 +132,14 @@ async function handleSubmit() {
           accept="image/*"
         >
           <div
-            class="group border-border bg-surface hover:border-primary relative flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed transition-all"
+            class="group border-divider bg-surface hover:border-primary relative flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed transition-all"
           >
             <img v-if="avatarPreview" :src="avatarPreview" alt="avatar" class="h-full w-full object-cover" />
             <div
               v-else
               class="text-text-muted group-hover:text-primary flex flex-col items-center justify-center transition-colors"
             >
-              <IconUpload size="22" stroke="1.5" />
+              <IconUpload class="size-6" stroke="1.5" />
               <span class="mt-1 text-[10px] font-semibold tracking-wider uppercase">{{ t('upload') }}</span>
             </div>
 
@@ -148,7 +148,7 @@ async function handleSubmit() {
               v-if="avatarPreview"
               class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
             >
-              <IconUpload size="24" class="text-white" stroke="1.5" />
+              <IconUpload class="size-6 text-white" stroke="1.5" />
             </div>
           </div>
         </a-upload>

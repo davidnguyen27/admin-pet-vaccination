@@ -1,6 +1,4 @@
 import type { I_PaginatedResponse, I_Params, I_Response } from '@/core/api/api.type';
-import { axiosClient } from '@/core/api/axios';
-import { USER_PATH } from '@/core/api/endpoints';
 import type { User } from '@/shared/types/user.type';
 
 export interface UserParams extends I_Params {
@@ -37,40 +35,58 @@ export interface CreateUserPayload {
 
 export const userAPI = {
   async fetchListUser(params: UserParams): Promise<I_PaginatedResponse<User>> {
-    return await axiosClient.request({
-      method: 'GET',
-      url: USER_PATH,
-      params,
-    });
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Mock user API disabled',
+      data: [],
+      meta: {
+        total: 0,
+        page: params.page,
+        limit: params.limit,
+        totalPages: 0,
+      },
+    };
   },
 
   async getUser(id: string): Promise<I_Response<User>> {
-    return await axiosClient.request({
-      method: 'GET',
-      url: `${USER_PATH}/${id}`,
-    });
+    void id;
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Mock user API disabled',
+      data: undefined,
+    };
   },
 
   async createUser(data: FormData): Promise<I_Response<User>> {
-    return await axiosClient.request({
-      method: 'POST',
-      url: USER_PATH,
-      data,
-    });
+    void data;
+    return {
+      success: true,
+      statusCode: 201,
+      message: 'Mock user API disabled',
+      data: undefined,
+    };
   },
 
   async updateUser(id: string, data: FormData): Promise<I_Response<User>> {
-    return await axiosClient.request({
-      method: 'PATCH',
-      url: `${USER_PATH}/${id}`,
-      data,
-    });
+    void id;
+    void data;
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Mock user API disabled',
+      data: undefined,
+    };
   },
 
   async deleteUser(id: string): Promise<I_Response<User>> {
-    return await axiosClient.request({
-      method: 'DELETE',
-      url: `${USER_PATH}/${id}`,
-    });
+    void id;
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Mock user API disabled',
+      data: undefined,
+    };
   },
 };
