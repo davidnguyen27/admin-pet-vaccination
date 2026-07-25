@@ -11,15 +11,22 @@ const emit = defineEmits<{
   (e: 'change'): void;
 }>();
 
-function handleChange(page: number, pageSize: number) {
+const handleChange = (page: number, pageSize: number) => {
   emit('update:current', page);
   emit('update:pageSize', pageSize);
   emit('change');
-}
+};
 </script>
 
 <template>
-  <div class="flex justify-end p-2">
-    <a-pagination :current="current" :pageSize="pageSize" :total="total" show-size-changer @change="handleChange" />
+  <div class="flex justify-start overflow-x-auto p-2 sm:justify-end">
+    <a-pagination
+      :current="current"
+      :pageSize="pageSize"
+      :total="total"
+      show-size-changer
+      :show-less-items="true"
+      @change="handleChange"
+    />
   </div>
 </template>
