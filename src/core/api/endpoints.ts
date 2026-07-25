@@ -7,3 +7,9 @@ export const CURRENT_USER_URL = '/auth/me';
 
 // User
 export const USER_PATH = '/users';
+
+// Pet
+export const PET_URL = '/pets';
+
+// Vaccine
+export const VACCINE_URL = '/vaccines';

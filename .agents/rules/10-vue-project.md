@@ -121,32 +121,6 @@ watch(
 
 Do not use `watch` when `computed` is enough.
 
-## Function Convention
-
-In `<script setup>`, prefer function declarations for main handlers and helper functions.
-
-Good:
-
-```ts
-function handleSearch() {
-  fetchUsers();
-}
-
-function resetFilters() {
-  userStore.resetFilters();
-}
-```
-
-Use arrow functions for short callbacks.
-
-Good:
-
-```ts
-const usersData = computed(() => users.value.items);
-
-const activeUsers = computed(() => users.value.items.filter(user => user.isActive));
-```
-
 ## Template
 
 Keep template logic simple.

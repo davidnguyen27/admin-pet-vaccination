@@ -7,6 +7,7 @@
   --color-primary-hover: #249b7e;
   --color-primary-active: #176b57;
   --color-primary-soft: #e6f7f2;
+  --color-primary-xsoft: #f0fbf8;
   --color-primary-bg: #f2fbf7;
 
   --color-secondary: #58b99d;
@@ -20,7 +21,7 @@
   --color-text-white: #ffffff;
 
   /* Background */
-  --color-bg: #f7faf9;
+  --color-bg: #f3f7f6;
   --color-surface: #ffffff;
   --color-surface-soft: #fbfefd;
 
@@ -42,8 +43,13 @@
   --color-info-bg: #eff6ff;
 
   /* Shadow */
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.05);
+  --shadow-card: 0 1px 3px rgb(15 23 42 / 0.07), 0 1px 2px rgb(15 23 42 / 0.04);
+  --shadow-card-hover: 0 4px 12px rgb(15 23 42 / 0.10), 0 1px 3px rgb(15 23 42 / 0.06);
   --shadow-popup: 0 8px 24px rgb(15 23 42 / 0.08);
+
+  /* Radius */
+  --radius-nav: 4px;
+  --radius-card: 6px;
 
   /* Focus */
   --focus-ring: 0 0 0 3px rgb(31 138 112 / 0.18);

@@ -2,9 +2,9 @@ import { createApp } from 'vue';
 import App from '@/App.vue';
 import Antd from 'ant-design-vue';
 import router from '@/core/router';
+import 'ant-design-vue/dist/reset.css';
 import '../index.css';
 import '@/assets/scss/main.scss';
-import 'ant-design-vue/dist/reset.css';
 import { pinia } from '@/core/plugins/pinia';
 import { i18n } from '@/core/plugins/i18n';
 

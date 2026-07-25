@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { authGuard } from '@/core/router/guards';
+// import { authGuard } from '@/core/router/guards';
 
 const SignInPage = () => import('@/features/auth/pages/SignInPage.vue');
 const ForgotPasswordPage = () => import('@/features/auth/pages/ForgotPasswordPage.vue');
@@ -8,10 +8,17 @@ const StatisticsOverview = () => import('@/features/statistics/pages/StatisticsO
 const UserOverviewPage = () => import('@/features/users/pages/UserOverviewPage.vue');
 const UserDetailPage = () => import('@/features/users/pages/UserDetailPage.vue');
 const CreateUserPage = () => import('@/features/users/pages/CreateUserPage.vue');
-// const PetManagement = () => import('@/features/pets/views/PetManagement.vue');
-// const VaccineManagement = () => import('@/features/vaccines/views/VaccineManagement.vue');
-// const MicrochipManagement = () => import('@/features/microchips/views/MicrochipManagement.vue');
-// const SettingsView = () => import('@/features/settings/views/SettingsView.vue');
+const PetManagementPage = () => import('@/features/pets/pages/PetManagementPage.vue');
+const VaccineManagementPage = () => import('@/features/vaccines/pages/VaccineManagementPage.vue');
+const VaccineDetailPage = () => import('@/features/vaccines/pages/VaccineDetailPage.vue');
+const MicrochipManagementPage = () => import('@/features/microchip/pages/MicrochipManagementPage.vue');
+const HealthCertificateManagementPage = () =>
+  import('@/features/health-certificate/pages/HealthCertificateManagementPage.vue');
+const VoucherManagementPage = () => import('@/features/vouchers/pages/VoucherManagementPage.vue');
+const DoctorSchedulePage = () => import('@/features/schedules-working/pages/DoctorSchedulePage.vue');
+const ShiftDetailPage = () => import('@/features/schedules-working/pages/ShiftDetailPage.vue');
+const DoctorScheduleDetailPage = () => import('@/features/schedules-working/pages/DoctorScheduleDetailPage.vue');
+const SettingsPage = () => import('@/features/settings/pages/SettingsPage.vue');
 
 const routes = [
   {
@@ -54,22 +61,64 @@ const routes = [
     path: '/profile',
     component: ProfilePage,
   },
-  // {
-  //   path: '/pet-management',
-  //   component: PetManagement,
-  // },
-  // {
-  //   path: '/vaccine-management',
-  //   component: VaccineManagement,
-  // },
-  // {
-  //   path: '/microchip-management',
-  //   component: MicrochipManagement,
-  // },
-  // {
-  //   path: '/settings',
-  //   component: SettingsView,
-  // },
+  {
+    path: '/pet-management',
+    component: PetManagementPage,
+  },
+  {
+    path: '/vaccine-management',
+    children: [
+      {
+        path: '',
+        name: 'VaccineOverview',
+        component: VaccineManagementPage,
+      },
+      {
+        path: ':id',
+        name: 'VaccineDetail',
+        component: VaccineDetailPage,
+      },
+    ],
+  },
+  {
+    path: '/microchip-management',
+    component: MicrochipManagementPage,
+  },
+  {
+    path: '/health-certificate-management',
+    name: 'HealthCertificateManagement',
+    component: HealthCertificateManagementPage,
+  },
+  {
+    path: '/voucher-management',
+    name: 'VoucherManagement',
+    component: VoucherManagementPage,
+  },
+  {
+    path: '/schedules-working',
+    children: [
+      {
+        path: '',
+        name: 'DoctorScheduleOverview',
+        component: DoctorSchedulePage,
+      },
+      {
+        path: 'shifts/:id',
+        name: 'ShiftDetail',
+        component: ShiftDetailPage,
+      },
+      {
+        path: 'doctors/:id',
+        name: 'DoctorScheduleDetail',
+        component: DoctorScheduleDetailPage,
+      },
+    ],
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: SettingsPage,
+  },
 ];
 
 const router = createRouter({
@@ -77,15 +126,15 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to, _from) => {
-  // Check Authentication Guard
-  const authResult = await authGuard(to);
-  if (authResult !== true) {
-    return authResult;
-  }
-
-  // Allow navigation if all guards pass
-  return true;
-});
+// Temporarily disabled while building UI without API/auth.
+// Re-enable this guard before wiring authenticated flows back in.
+// router.beforeEach(async (to, _from) => {
+//   const authResult = await authGuard(to);
+//   if (authResult !== true) {
+//     return authResult;
+//   }
+//
+//   return true;
+// });
 
 export default router;

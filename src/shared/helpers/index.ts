@@ -8,3 +8,11 @@ export function mapRoleCode(role?: string) {
   };
   return roleCodeMap[role.toLowerCase()] || role;
 }
+
+export function getSpeciesColor(speciesId: string) {
+  const lower = (speciesId || '').toLowerCase();
+  if (lower === 'dog') return 'processing';
+  if (lower === 'cat') return 'warning';
+  if (lower === 'bird') return 'success';
+  return 'default';
+}
