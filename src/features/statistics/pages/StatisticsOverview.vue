@@ -1,145 +1,262 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, onMounted, type Component } from 'vue';
+import { useRouter } from 'vue-router';
+import {
+  IconUserPlus,
+  IconReceipt,
+  IconCoin,
+  IconCalendarEvent,
+  IconCheckbox,
+  IconClock,
+  IconRefresh,
+  IconListDetails,
+  IconChartBar,
+  IconArrowUpRight,
+  IconArrowDownRight,
+  IconStethoscope,
+  IconVaccine,
+  IconAlertTriangle,
+  IconPackage,
+  IconCash,
+} from '@tabler/icons-vue';
 import PageLayout from '@/layouts/PageLayout.vue';
-import { IconUserPlus, IconReceipt, IconFileDescription } from '@tabler/icons-vue';
+import { useLocale } from '@/shared/composables/useLocale';
+import { useStatisticsStore } from '../stores/statistics.store';
 import AppointmentQueue from '../components/AppointmentQueue.vue';
 import UpcomingVaccinations from '../components/UpcomingVaccinations.vue';
 import InventoryAlerts from '../components/InventoryAlerts.vue';
-import ModalViewChart from '../components/ModalViewChart.vue';
+import ViewChartModal from '../components/ViewChartModal.vue';
+
+const ACTIVITY_ICON_MAP: Record<string, Component> = {
+  appointment: IconCalendarEvent,
+  exam: IconStethoscope,
+  vaccine: IconVaccine,
+  invoice: IconReceipt,
+  register: IconUserPlus,
+  alert: IconAlertTriangle,
+};
+
+const ACTIVITY_COLOR_MAP: Record<string, string> = {
+  appointment: 'bg-primary-soft text-primary',
+  exam: 'bg-info-bg text-info',
+  vaccine: 'bg-success-bg text-success',
+  invoice: 'bg-indigo-50 text-indigo-500',
+  register: 'bg-primary-soft text-primary',
+  alert: 'bg-warning-bg text-warning',
+};
+
+const CARD_ICON_MAP: Record<string, Component> = {
+  IconCalendarEvent,
+  IconVaccine,
+  IconPackage,
+  IconCash,
+  IconCoin,
+  IconClock,
+  IconCheckbox,
+};
+
+const router = useRouter();
+const { t } = useLocale();
+const store = useStatisticsStore();
 
 const isChartModalOpen = ref(false);
 
-interface OverviewCard {
-  key: string;
-  label: string;
-  value: number;
-  color: string;
-}
+const overviewCards = computed(() => store.overviewCards);
+const recentActivities = computed(() => store.recentActivities);
 
-interface Activity {
-  id: string;
-  text: string;
-  time: string;
-  color: string;
-}
+const getTrendIcon = (trend: 'up' | 'down' | 'neutral'): Component | null => {
+  if (trend === 'up') return IconArrowUpRight;
+  if (trend === 'down') return IconArrowDownRight;
+  return null;
+};
 
-const overviewCards: OverviewCard[] = [
-  {
-    key: 'today',
-    label: "Today's appointment",
-    value: 42,
-    color: 'text-text',
-  },
-  {
-    key: 'checked-in',
-    label: 'Checked in',
-    value: 18,
-    color: 'text-primary',
-  },
-  {
-    key: 'completed',
-    label: 'Completed',
-    value: 12,
-    color: 'text-success',
-  },
-  {
-    key: 'pending',
-    label: 'Pending',
-    value: 10,
-    color: 'text-warning',
-  },
-  {
-    key: 'cancelled',
-    label: 'Cancelled',
-    value: 2,
-    color: 'text-error',
-  },
-];
+const getTrendClass = (trend: 'up' | 'down' | 'neutral'): string => {
+  if (trend === 'up') return 'text-success';
+  if (trend === 'down') return 'text-warning';
+  return 'text-text-muted';
+};
 
-const recentActivities: Activity[] = [
-  { id: '1', text: 'Dr. Smith completed exam for Rocky.', time: '10 mins ago', color: 'bg-success' },
-  { id: '2', text: 'Vaccination record updated for Mittens (FVRCP).', time: '45 mins ago', color: 'bg-gray-300' },
-  { id: '3', text: 'New patient registered: Buster (Beagle).', time: '1 hour ago', color: 'bg-success' },
-];
+onMounted(() => {
+  store.fetchDashboardData();
+});
 </script>
 
 <template>
   <PageLayout>
-    <div class="flex justify-between">
-      <div class="flex flex-col">
-        <h1 class="font-ibm text-text text-xl font-bold">Dashboard Overview</h1>
-        <span class="text-text-muted text-sm">Monitor today's vaccination operations and inventory alerts</span>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="font-ibm text-text text-xl font-bold">
+          {{ t('statistics.dashboardOverview') }}
+        </h1>
+        <span class="text-text-muted mt-0.5 block text-sm">
+          {{ t('statistics.dashboardDesc') }}
+        </span>
       </div>
-      <div class="flex items-end gap-3">
-        <div class="cursor-pointer rounded-sm bg-[#ccc] p-1.5 text-sm hover:bg-[#ccc]/80">Appointment List</div>
-        <div
-          @click="isChartModalOpen = true"
-          class="bg-primary hover:bg-secondary cursor-pointer rounded-sm p-1.5 text-sm text-white"
-        >
-          Statistics
-        </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <a-button @click="router.push('/user-management')">
+          <template #icon><IconListDetails class="size-3.5" /></template>
+          {{ t('statistics.appointmentList') }}
+        </a-button>
+        <a-button type="primary" @click="isChartModalOpen = true">
+          <template #icon><IconChartBar class="size-3.5" /></template>
+          {{ t('statistics.btnTitle') }}
+        </a-button>
+        <a-tooltip :title="t('statistics.refreshData')">
+          <a-button shape="circle">
+            <template #icon><IconRefresh class="size-3.5" /></template>
+          </a-button>
+        </a-tooltip>
       </div>
     </div>
 
-    <div class="my-4 grid grid-cols-1 gap-1.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <!-- Metric Cards -->
+    <div class="grid grid-cols-2 gap-3 xl:grid-cols-4">
       <div
         v-for="item in overviewCards"
         :key="item.key"
-        class="border-divider bg-surface shadow-card flex flex-col gap-1.5 border p-3"
+        class="shadow-card border-divider bg-surface group flex cursor-default flex-col gap-3 rounded border p-4 transition-all duration-200 hover:shadow-(--shadow-card-hover)"
       >
-        <span class="text-text-subtle text-sm">{{ item.label }}</span>
-        <span :class="['text-xl font-semibold', item.color ?? 'text-text']">{{ item.value }}</span>
+        <!-- Card top row -->
+        <div class="flex items-start justify-between">
+          <span class="text-text-muted text-xs font-medium tracking-wide">{{
+            t('statistics.' + item.labelKey, item.labelKey)
+          }}</span>
+          <div :class="['flex size-8 items-center justify-center rounded-md', item.bgClass]">
+            <component :is="CARD_ICON_MAP[item.iconName]" class="size-4 text-current opacity-70" />
+          </div>
+        </div>
+
+        <!-- Value -->
+        <span class="text-text text-2xl font-bold tracking-tight">{{ item.value }}</span>
+
+        <!-- Trend -->
+        <div class="flex items-center gap-1">
+          <component
+            :is="getTrendIcon(item.trend)"
+            v-if="getTrendIcon(item.trend)"
+            :class="['size-3.5', getTrendClass(item.trend)]"
+          />
+          <span :class="['text-xs font-medium', getTrendClass(item.trend)]">{{ item.trendValue }}</span>
+          <span class="text-text-disabled text-xs">{{ t('statistics.' + item.subLabelKey, item.subLabelKey) }}</span>
+        </div>
       </div>
     </div>
 
-    <div class="mt-6 flex flex-col gap-6 pb-6">
-      <AppointmentQueue />
+    <!-- Appointment Queue -->
+    <AppointmentQueue />
 
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <UpcomingVaccinations />
+    <!-- Vaccinations + Inventory -->
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <UpcomingVaccinations />
+      <InventoryAlerts />
+    </div>
 
-        <InventoryAlerts />
-      </div>
+    <!-- Recent Activity + Quick Actions -->
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+      <!-- Recent Activity -->
+      <div class="shadow-card border-divider bg-surface flex flex-col rounded-md border p-5 xl:col-span-2">
+        <div class="mb-5 flex items-center justify-between">
+          <div>
+            <h2 class="font-ibm text-text text-base font-semibold">
+              {{ t('statistics.recentActivity', 'Recent Activity') }}
+            </h2>
+            <p class="text-text-muted mt-0.5 text-xs">{{ t('statistics.recentActivityDesc') }}</p>
+          </div>
+          <a-button type="link" size="small" class="p-0! text-xs! font-medium!">{{
+            t('statistics.viewAll', 'View all')
+          }}</a-button>
+        </div>
 
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div class="border-divider rounded border bg-white p-4 shadow-sm lg:col-span-2">
-          <h2 class="font-ibm text-text mb-4 font-semibold">Recent Activity</h2>
-          <div class="border-divider relative ml-2 space-y-6 border-l py-1 pl-5">
-            <div v-for="act in recentActivities" :key="act.id" class="relative">
-              <div :class="['absolute top-1.5 -left-[23px] size-1.5 rounded-full', act.color]"></div>
-              <div class="text-text text-sm">{{ act.text }}</div>
-              <div class="text-text-muted mt-0.5 text-xs">{{ act.time }}</div>
+        <div
+          class="before:bg-divider relative ml-2 flex-1 space-y-6 before:absolute before:inset-y-2 before:left-[13px] before:w-px"
+        >
+          <div v-for="act in recentActivities" :key="act.id" class="group relative flex items-start gap-4">
+            <div
+              :class="[
+                'ring-surface relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full ring-4 transition-transform duration-200 group-hover:scale-110',
+                ACTIVITY_COLOR_MAP[act.type],
+              ]"
+            >
+              <component :is="ACTIVITY_ICON_MAP[act.type]" class="size-3.5" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-text text-sm leading-snug font-medium">{{ act.text }}</p>
+              <p class="text-text-muted mt-1 flex items-center gap-1.5 text-xs">
+                <IconClock class="size-3.5 opacity-70" />
+                <span>{{ act.time }}</span>
+              </p>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="border-divider rounded border bg-white p-4 shadow-sm lg:col-span-1">
-          <h2 class="font-ibm text-text mb-4 font-semibold">Quick Actions</h2>
-          <div class="flex flex-col gap-3">
-            <button
-              class="border-divider text-text flex w-full items-center gap-3 rounded border p-2.5 text-sm transition-colors hover:bg-black/5"
+      <!-- Quick Actions -->
+      <div class="shadow-card border-divider bg-surface flex flex-col rounded-md border p-5 xl:col-span-1">
+        <div class="mb-5">
+          <h2 class="font-ibm text-text text-base font-semibold">
+            {{ t('statistics.quickActions', 'Quick Actions') }}
+          </h2>
+          <p class="text-text-muted mt-0.5 text-xs">{{ t('statistics.quickActionsDesc') }}</p>
+        </div>
+        <div class="grid flex-1 grid-cols-2 gap-3">
+          <a-button
+            class="group border-divider! bg-surface-soft! hover:border-primary! hover:bg-primary-xsoft! h-auto! flex-col! gap-2.5! px-2! py-4!"
+            @click="router.push('/user-management')"
+          >
+            <div
+              class="bg-primary-soft text-primary group-hover:bg-primary flex size-10 items-center justify-center rounded-full transition-colors group-hover:text-white"
             >
-              <IconUserPlus class="text-text-muted size-5" />
-              Register New Patient
-            </button>
-            <button
-              class="border-divider text-text flex w-full items-center gap-3 rounded border p-2.5 text-sm transition-colors hover:bg-black/5"
+              <IconCalendarEvent class="size-5" />
+            </div>
+            <span class="text-text group-hover:text-primary text-xs font-medium tracking-wide">{{
+              t('statistics.newAppointment', 'New Appointment')
+            }}</span>
+          </a-button>
+
+          <a-button
+            class="group border-divider! bg-surface-soft! hover:border-primary! hover:bg-primary-xsoft! h-auto! flex-col! gap-2.5! px-2! py-4!"
+          >
+            <div
+              class="bg-primary-soft text-primary group-hover:bg-primary flex size-10 items-center justify-center rounded-full transition-colors group-hover:text-white"
             >
-              <IconReceipt class="text-text-muted size-5" />
-              Create Invoice
-            </button>
-            <button
-              class="border-divider text-text flex w-full items-center gap-3 rounded border p-2.5 text-sm transition-colors hover:bg-black/5"
+              <IconUserPlus class="size-5" />
+            </div>
+            <span class="text-text group-hover:text-primary text-xs font-medium tracking-wide">{{
+              t('statistics.registerCustomer', 'Register Customer')
+            }}</span>
+          </a-button>
+
+          <a-button
+            class="group border-divider! bg-surface-soft! hover:border-primary! hover:bg-primary-xsoft! h-auto! flex-col! gap-2.5! px-2! py-4!"
+            @click="router.push('/vaccine-management')"
+          >
+            <div
+              class="bg-primary-soft text-primary group-hover:bg-primary flex size-10 items-center justify-center rounded-full transition-colors group-hover:text-white"
             >
-              <IconFileDescription class="text-text-muted size-5" />
-              Generate Report
-            </button>
-          </div>
+              <IconVaccine class="size-5" />
+            </div>
+            <span class="text-text group-hover:text-primary text-xs font-medium tracking-wide">{{
+              t('statistics.manageVaccines', 'Manage Vaccines')
+            }}</span>
+          </a-button>
+
+          <a-button
+            class="group border-divider! bg-surface-soft! hover:border-primary! hover:bg-primary-xsoft! h-auto! flex-col! gap-2.5! px-2! py-4!"
+          >
+            <div
+              class="bg-primary-soft text-primary group-hover:bg-primary flex size-10 items-center justify-center rounded-full transition-colors group-hover:text-white"
+            >
+              <IconReceipt class="size-5" />
+            </div>
+            <span class="text-text group-hover:text-primary text-xs font-medium tracking-wide">{{
+              t('statistics.createInvoice', 'Create Invoice')
+            }}</span>
+          </a-button>
         </div>
       </div>
     </div>
 
-    <ModalViewChart
+    <ViewChartModal
       :open="isChartModalOpen"
       :on-cancel="
         () => {

@@ -1,64 +1,98 @@
+<script setup lang="ts">
+import { computed, type Component } from 'vue';
+import { IconAlertCircle, IconAlertTriangle, IconPackage, IconArrowRight, IconCircleCheck } from '@tabler/icons-vue';
+import { useLocale } from '@/shared/composables/useLocale';
+import { useStatisticsStore, type InventoryAlert } from '../stores/statistics.store';
+
+const { t } = useLocale();
+const store = useStatisticsStore();
+
+const inventoryAlertsData = computed(() => store.inventoryAlerts);
+
+const ALERT_CONFIG: Record<
+  InventoryAlert['type'],
+  { icon: Component; iconBg: string; iconColor: string; badgeClass: string }
+> = {
+  'Low Stock': {
+    icon: IconAlertCircle,
+    iconBg: 'bg-error-bg',
+    iconColor: 'text-error',
+    badgeClass: 'bg-error-bg text-error',
+  },
+  Expiring: {
+    icon: IconAlertTriangle,
+    iconBg: 'bg-warning-bg',
+    iconColor: 'text-warning',
+    badgeClass: 'bg-warning-bg text-warning',
+  },
+};
+</script>
+
 <template>
-  <div class="border-divider rounded-sm border bg-white p-4 shadow-sm">
-    <h2 class="font-ibm text-text mb-4 font-semibold">Inventory Alerts</h2>
-    <div class="overflow-x-auto">
-      <a-table :columns="columns" :data-source="inventoryAlertsData" :pagination="false" row-key="id">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'item'">
-            <div
+  <div class="shadow-card border-divider bg-surface overflow-hidden rounded-md border">
+    <div class="border-divider flex items-center justify-between border-b px-4 py-3">
+      <div class="flex items-center gap-2">
+        <IconPackage class="text-primary size-4" />
+        <span class="font-ibm text-text font-semibold">{{ t('statistics.inventoryAlerts') }}</span>
+        <span
+          v-if="inventoryAlertsData.length > 0"
+          class="bg-error-bg text-error inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-semibold"
+        >
+          {{ inventoryAlertsData.length }}
+        </span>
+      </div>
+      <a-button type="link" size="small" class="p-0! text-xs!">
+        {{ t('statistics.viewInventory') }}
+        <IconArrowRight class="ml-0.5 inline size-3" />
+      </a-button>
+    </div>
+
+    <!-- Alert List -->
+    <div v-if="inventoryAlertsData.length > 0" class="divide-divider divide-y">
+      <div
+        v-for="alert in inventoryAlertsData"
+        :key="alert.id"
+        class="hover:bg-primary-xsoft flex items-center gap-3 px-4 py-3 transition-colors"
+      >
+        <!-- Icon -->
+        <div :class="['flex size-9 shrink-0 items-center justify-center rounded', ALERT_CONFIG[alert.type].iconBg]">
+          <component :is="ALERT_CONFIG[alert.type].icon" :class="['size-4', ALERT_CONFIG[alert.type].iconColor]" />
+        </div>
+
+        <!-- Info -->
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-text text-sm font-medium">{{ alert.name }}</span>
+            <span
               :class="[
-                'flex items-center gap-1.5 text-sm whitespace-nowrap',
-                record.type === 'Low Stock' ? 'text-error' : 'text-warning',
+                'rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase',
+                ALERT_CONFIG[alert.type].badgeClass,
               ]"
             >
-              <IconAlertCircle v-if="record.type === 'Low Stock'" class="size-4" />
-              <IconAlertTriangle v-else class="size-4" />
-              {{ record.type }}
-            </div>
-          </template>
+              {{ alert.type }}
+            </span>
+          </div>
+          <p class="text-text-muted mt-0.5 truncate text-xs">{{ alert.desc }}</p>
+        </div>
 
-          <template v-else-if="column.key === 'details'">
-            <div class="text-text font-medium">{{ record.name }}</div>
-            <div class="text-text-muted text-xs">{{ record.desc }}</div>
-          </template>
+        <!-- Action -->
+        <a-button type="link" size="small" class="shrink-0! p-0! text-xs!">
+          {{ alert.action }}
+        </a-button>
+      </div>
+    </div>
 
-          <template v-else-if="column.key === 'action'">
-            <button class="text-primary hover:text-secondary font-medium transition-colors">
-              {{ record.action }}
-            </button>
-          </template>
-        </template>
-      </a-table>
+    <!-- Empty State — All Good -->
+    <div v-else class="py-10 text-center">
+      <div class="bg-success-bg mx-auto mb-3 flex size-12 items-center justify-center rounded-full">
+        <IconCircleCheck class="text-success size-6" />
+      </div>
+      <p class="text-text-subtle text-sm font-medium">
+        {{ t('statistics.allInventoryGood') }}
+      </p>
+      <p class="text-text-muted mt-0.5 text-xs">
+        {{ t('statistics.noLowStockOrExpiring') }}
+      </p>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { IconAlertCircle, IconAlertTriangle } from '@tabler/icons-vue';
-import type { TableColumnsType } from 'ant-design-vue';
-
-interface InventoryAlert {
-  id: string;
-  type: 'Low Stock' | 'Expiring';
-  name: string;
-  desc: string;
-  action: string;
-}
-
-const columns: TableColumnsType = [
-  { title: 'Item', dataIndex: 'item', key: 'item' },
-  { title: 'Details', dataIndex: 'details', key: 'details' },
-  { title: 'Action', key: 'action', align: 'right' },
-];
-
-const inventoryAlertsData: InventoryAlert[] = [
-  {
-    id: '1',
-    type: 'Low Stock',
-    name: 'Rabies Vaccine (1yr)',
-    desc: 'Only 5 doses remaining (Lot #RV-294)',
-    action: 'Reorder',
-  },
-  { id: '2', type: 'Expiring', name: 'DHPP', desc: 'Expires in 14 days (Lot #DP-102)', action: 'View' },
-];
-</script>
