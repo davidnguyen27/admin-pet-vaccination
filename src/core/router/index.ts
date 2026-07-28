@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
-// import { authGuard } from '@/core/router/guards';
+import { authGuard } from '@/core/router/guards';
 
 const SignInPage = () => import('@/features/auth/pages/SignInPage.vue');
-const ForgotPasswordPage = () => import('@/features/auth/pages/ForgotPasswordPage.vue');
 const ProfilePage = () => import('@/features/auth/pages/ProfilePage.vue');
 const StatisticsOverview = () => import('@/features/statistics/pages/StatisticsOverview.vue');
 const UserOverviewPage = () => import('@/features/users/pages/UserOverviewPage.vue');
@@ -28,10 +27,6 @@ const routes = [
   {
     path: '/sign-in',
     component: SignInPage,
-  },
-  {
-    path: '/forgot-password',
-    component: ForgotPasswordPage,
   },
   {
     path: '/statistic',
@@ -126,15 +121,13 @@ const router = createRouter({
   routes,
 });
 
-// Temporarily disabled while building UI without API/auth.
-// Re-enable this guard before wiring authenticated flows back in.
-// router.beforeEach(async (to, _from) => {
-//   const authResult = await authGuard(to);
-//   if (authResult !== true) {
-//     return authResult;
-//   }
-//
-//   return true;
-// });
+router.beforeEach(async (to, _from) => {
+  const authResult = await authGuard(to);
+  if (authResult !== true) {
+    return authResult;
+  }
+
+  return true;
+});
 
 export default router;

@@ -2,14 +2,14 @@ export interface User {
   id: string;
   role: string;
   email: string;
-  fullName: string;
-  phoneNumber: string;
-  avatarUrl: string;
+  full_name: string;
+  phone_number: string;
+  avatar_url: string;
   dob: string;
-  isActive: boolean;
-  isDeleted: boolean;
-  lastLoginAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
+  is_active: boolean;
+  is_deleted: boolean;
+  last_login_at: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
 }

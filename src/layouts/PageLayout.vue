@@ -12,12 +12,10 @@ import {
   IconCalendarTime,
 } from '@tabler/icons-vue';
 import { useLocale } from '@/shared/composables/useLocale';
-import { useAuthStore } from '@/store/authStore';
 import AppHeader from '@/shared/components/AppHeader.vue';
 import AppSidebar from '@/shared/components/AppSidebar.vue';
 
 const route = useRoute();
-const auth = useAuthStore();
 const { t } = useLocale();
 
 const menuItems = computed(() => [
@@ -120,17 +118,9 @@ const closeSidebar = () => {
   isSidebarOpen.value = false;
 };
 
-onMounted(async () => {
+onMounted(() => {
   updateViewportWidth();
   window.addEventListener('resize', updateViewportWidth);
-
-  if (auth.accessToken && !auth.user) {
-    try {
-      await auth.fetchCurrentUser();
-    } catch (error) {
-      console.error('Failed to fetch current user:', error);
-    }
-  }
 });
 
 onBeforeUnmount(() => {

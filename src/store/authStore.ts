@@ -1,21 +1,8 @@
 import { defineStore } from 'pinia';
 import type { User } from '@/shared/types/user.type';
+import { authAPI } from '@/features/auth/api';
 
-const MOCK_AUTH_USER: User = {
-  id: 'mock-admin',
-  role: 'ADMIN',
-  email: 'admin@petclinic.vn',
-  fullName: 'Admin PetVax',
-  phoneNumber: '0900000000',
-  avatarUrl: '',
-  dob: '1995-01-01',
-  isActive: true,
-  isDeleted: false,
-  lastLoginAt: new Date().toISOString(),
-  createdAt: '2025-01-01T00:00:00.000Z',
-  updatedAt: new Date().toISOString(),
-  deletedAt: null,
-};
+const ADMIN_INFO = 'admin';
 
 interface AuthState {
   user: User | null;
@@ -25,7 +12,7 @@ interface AuthState {
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
-    user: null,
+    user: JSON.parse(localStorage.getItem(ADMIN_INFO)!),
     accessToken: null,
     isLoading: false,
   }),
@@ -37,37 +24,57 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     setAccessToken(value: string | null) {
-      if (!value) this.user = null;
       this.accessToken = value;
+    },
+
+    setUser(user: User) {
+      this.user = user;
+      localStorage.setItem(ADMIN_INFO, JSON.stringify(user));
+    },
+
+    clearUser() {
+      this.user = null;
+      this.accessToken = null;
+      localStorage.removeItem(ADMIN_INFO);
     },
 
     async login(payload: { email: string; password: string }) {
       this.isLoading = true;
       try {
-        this.setAccessToken(`mock-token-${Date.now()}`);
-        this.user = {
-          ...MOCK_AUTH_USER,
-          email: payload.email || MOCK_AUTH_USER.email,
-          lastLoginAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
+        const response = await authAPI.login(payload);
+        const { access_token, user } = response?.data || {};
+
+        if (response.success && access_token && user) {
+          this.setUser(user);
+          this.setAccessToken(access_token);
+        }
+      } catch (error) {
+        console.error('Login failed', error);
+        throw error;
       } finally {
         this.isLoading = false;
       }
     },
 
-    async fetchCurrentUser() {
+    async restoreSession() {
+      if (!this.user) {
+        return false;
+      }
+
       this.isLoading = true;
       try {
-        if (!this.user) {
-          this.user = MOCK_AUTH_USER;
+        const response = await authAPI.refreshToken();
+        const { access_token } = response.data || {};
+
+        if (response.success && access_token) {
+          this.setAccessToken(access_token);
+          return true;
         }
-        return {
-          success: true,
-          statusCode: 200,
-          message: 'Mock current user loaded',
-          data: this.user,
-        };
+        this.clearUser();
+        return false;
+      } catch (error) {
+        this.clearUser();
+        return false;
       } finally {
         this.isLoading = false;
       }
@@ -75,9 +82,14 @@ export const useAuthStore = defineStore('auth', {
 
     async logout() {
       this.isLoading = true;
-      this.user = null;
-      this.accessToken = null;
-      this.isLoading = false;
+      try {
+        await authAPI.logout();
+      } catch (error) {
+        console.error('Logout failed', error);
+      } finally {
+        this.clearUser();
+        this.isLoading = false;
+      }
     },
   },
 });

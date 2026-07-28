@@ -1,16 +1,21 @@
 import type { RouteLocationNormalized } from 'vue-router';
 import { useAuthStore } from '@/store/authStore';
 
-const PUBLIC_ROUTES = ['/sign-in', '/forgot-password'];
+const PUBLIC_ROUTES = ['/sign-in'];
 
-export const authGuard = (to: RouteLocationNormalized) => {
-  const user = useAuthStore();
-  const isAuthenticated = user.isAuthenticated;
+export const authGuard = async (to: RouteLocationNormalized) => {
+  const authStore = useAuthStore();
+  let isAuthenticated = authStore.isAuthenticated;
+
+  // Attempt to restore session if not authenticated but user info exists in localStorage
+  if (!isAuthenticated && authStore.user) {
+    isAuthenticated = await authStore.restoreSession();
+  }
 
   if (PUBLIC_ROUTES.includes(to.path)) {
     // If an authenticated user tries to access public auth pages, redirect to dashboard
     if (isAuthenticated) {
-      return { path: '/dashboard' };
+      return { path: '/statistic' };
     }
     return true;
   }
