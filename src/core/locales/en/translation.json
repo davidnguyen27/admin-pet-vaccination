@@ -26,7 +26,10 @@
     "invalidEmail": "Invalid email address",
     "rememberMe": "Remember me",
     "signInSuccess": "Sign in successful",
-    "mockResetLinkSent": "Mock reset link sent. No API request was made."
+    "mockResetLinkSent": "Mock reset link sent. No API request was made.",
+    "myProfile": "My Profile",
+    "manageProfileDesc": "Review and manage your personal profile information.",
+    "userNotFound": "User information not found"
   },
 
   "statistics": {

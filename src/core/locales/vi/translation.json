@@ -26,7 +26,10 @@
     "invalidEmail": "Địa chỉ email không hợp lệ",
     "rememberMe": "Lưu đăng nhập",
     "signInSuccess": "Đăng nhập thành công",
-    "mockResetLinkSent": "Đã giả lập gửi liên kết đặt lại mật khẩu. Không có API nào được gọi."
+    "mockResetLinkSent": "Đã giả lập gửi liên kết đặt lại mật khẩu. Không có API nào được gọi.",
+    "myProfile": "Hồ sơ của tôi",
+    "manageProfileDesc": "Xem và quản lý thông tin hồ sơ cá nhân của bạn.",
+    "userNotFound": "Không tìm thấy thông tin người dùng"
   },
 
   "statistics": {
